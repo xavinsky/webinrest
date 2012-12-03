@@ -1,0 +1,24 @@
+=========
+TODO LIST
+=========
+
+Interface : 
+
+* flag for country
+* fold/unfold section
+
+Clean :
+
+* css review
+
+Fonctions :
+
+* Templating css color.
+* Templating layout and content.
+* Syntax Color in code block
+
+Projet :
+
+* Doc code
+* Test unit
+

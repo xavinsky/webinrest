@@ -1,0 +1,570 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Copyright © 2012 Xavier Manach <xav@tekio.org>
+
+This file is part of Rest2Web.
+
+Rest2Web is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Rest2Web is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Rest2Web. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+"""
+TODO :
+    - comment the code / prepare publication
+    - multi-lang
+"""
+
+import os
+import re
+
+from sys import getfilesystemencoding
+from sys import exit as sys_exit
+from json import loads as json_loads
+from cgi import escape
+from shutil import copyfileobj
+from posixpath import normpath, splitext
+from urllib import unquote, quote
+from docutils import core
+from magic import open as magic_open
+from magic import MAGIC_MIME
+from ConfigParser import ConfigParser
+from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from BaseHTTPServer import test as testBaseHTTPServer
+from argparse import ArgumentParser
+from StringIO import StringIO
+from search_in_files import search_in_text_files
+
+__version__ = "0.1"
+
+
+class Rest2WebRequestHandler(BaseHTTPRequestHandler):
+    """
+    Handler for Resr2Web server.
+
+    self.server.config must be configured with all options
+    before call the Handler.
+
+    Urls  :
+
+    /search?pattern=<regexp_python_expression>
+       search in documents.
+
+    /includes/<file_path>
+    publish files in config/includes folders.
+
+    /<file_path>
+    publish files in document folders.
+
+    """
+
+    server_version = "Rest2Web/" + __version__
+    magic_mime = magic_open(MAGIC_MIME)
+    magic_mime.load()
+
+    def do_GET(self):
+        self.do_get = True
+        f = self.send_head()
+        if f:
+            copyfileobj(f, self.wfile)
+            f.close()
+
+    def do_HEAD(self):
+        self.do_get = False
+        f = self.send_head()
+        if f:
+            f.close()
+
+    def convert_file_rest_to_html(self, path_actu):
+        try:
+            f = open(path_actu)
+            rest_datas = f.read()
+            fs = os.fstat(f.fileno())
+            date_file = self.date_time_string(fs.st_mtime)
+            f.close()
+        except IOError:
+            self.send_error(404, "File not found")
+            return (None, "")
+        try:
+            parts = core.publish_parts(
+                source=rest_datas,
+                writer_name='html')
+            content_html = parts['body_pre_docinfo'] + parts['fragment']
+        except:
+            content_html = 'Invalid Rest Structure.'
+        pattern = '<col width="(\d)*%" />'
+        content_html = re.sub(pattern, '', content_html, flags=re.DOTALL)
+        content_html = content_html.replace('<col class="label" /><col />',
+                                            '')
+        pattern = '<colgroup>(\s)*</colgroup>'
+        content_html = re.sub(pattern, '', content_html, flags=re.DOTALL)
+        return (date_file, content_html)
+
+    def send_head(self):
+        """
+        Handle all request.
+        """
+        self.config = self.server.config
+        path = unquote(self.path)
+        pattern = ''
+        dec = path.split('?pattern=', 1)
+        if len(dec) > 1:
+            path, pattern = dec
+        else:
+            path = dec[0]
+        path = path.split('?', 1)[0].split('#', 1)[0]
+        # !!! normpath is important for security don't remove it
+        path = normpath(path)
+        words = path.split('/')
+        words = filter(None, words)
+
+        # parse URL for calculate :
+        # path_actu : path file to publish.
+        # path_rel : relative url for breadcrum
+        path_doc = self.config['server']["path_documents"]
+        path_actu = path_doc
+        path_rel = ""
+        if not words or words[0] != 'search' or not pattern:
+            is_get_config = False
+            if words and words[0] == 'includes':
+                path_actu = os.path.join(
+                    self.config['config']["folder_config"], 'includes')
+                path_rel = 'includes'
+                is_get_config = True
+                words = words[1:]
+            for word in words:
+                drive, word = os.path.splitdrive(word)
+                head, word = os.path.split(word)
+                if word in (os.curdir, os.pardir):
+                    continue
+                path_actu = os.path.join(path_actu, word)
+                path_rel = os.path.join(path_rel, word)
+            if len(path_rel) > 2 and path_rel[-1] == '/':
+                path_rel = path_rel[:-1]
+            if os.path.isdir(path_actu):
+                index_path = os.path.join(path_actu,
+                    self.config['server']["default_index"])
+                if os.path.exists(index_path):
+                    path_actu = index_path
+                else:
+                    index_lang_flag = False
+                    for lang in self.config['options']["localizations"]:
+                        index_path_lang = index_path + lang
+                        if os.path.exists(index_path_lang):
+                            path_actu = index_path_lang
+                            index_lang_flag = True
+                    if not index_lang_flag:
+                        path_actu = os.path.join(
+                            self.config['config']["folder_config"],
+                            'includes',
+                            self.config['template']["no_index_file"])
+            # end parse URL
+            (is_rest, extension, ctype) = self.mime_is_rest(path_actu)
+            f = None
+            if not is_rest:
+                # is not restructured file then return the full file.
+                try:
+                    f = open(path_actu, 'rb')
+                except IOError:
+                    self.send_error(404, "File not found")
+                    return None
+                if extension == '.css':
+                    ctype = 'text/css'
+                size_file = str(os.fstat(f.fileno())[6])
+                fs = os.fstat(f.fileno())
+                date_file = self.date_time_string(fs.st_mtime)
+                return self.send_file(f, ctype, size_file, date_file)
+            # generate content html from restructuredtext file
+
+            # check multilang.
+            name_base = path_actu
+            if extension:
+                name_base = path_actu.split(extension)[0]
+
+            if unicode(name_base[-3:]) in \
+                   self.config['options']["localizations"]:
+                name_base =  name_base[:-3]
+                langs_results = []
+                for lang in self.config['options']["localizations"]:
+                    path_lang = name_base + lang + extension
+                    if os.path.exists(path_lang):
+                        langs_results.append((lang,
+                            self.convert_file_rest_to_html(path_lang)))
+                if len(langs_results) == 0:
+                    print "ERREUR ?"
+                    return None
+                elif len(langs_results) == 1:
+                    date_file, content_html = langs_results[0][1]
+                else:
+                    date_file = None
+                    content_html = '<div id="tabs_lang">'
+                    first_tab = True
+                    for (lang, r) in langs_results:
+                        className = 'tabinactive' 
+                        if first_tab:
+                            className = 'tabactive' 
+                            first_tab = False
+                        content_html += """<div class="%s"
+                        id="tab_%s"
+                        onmouseover="swap_lang('%s');"
+                        > %s </div>
+                        """ % (className, lang[1:], lang[1:], lang[1:])
+                    content_html += '</div>'
+                    for (lang, result) in langs_results:
+                        (date_file_lang, content_lang_html) = result
+                        style_lang = 'display: none;'
+                        if not date_file:
+                            date_file = date_file_lang
+                            style_lang = 'display: block;'
+                        else:
+                            if date_file < date_file_lang:
+                                date_file = date_file_lang
+                        content_html += """<div class="lang"
+                        id="lang_%s" style="%s">%s</div>
+                        """ % (lang, style_lang, content_lang_html)
+
+            else:
+                (date_file, content_html) = \
+                            self.convert_file_rest_to_html(path_actu)
+        else:
+            # generate content html from search pattern.
+            results = search_in_text_files(pattern, path_doc)
+            if results:
+                content_html = "Results for search %s : <ul>" % pattern
+                for result in results:
+                    res_path = result.split(path_doc, 1)[1]
+                    res_display = escape(unquote(res_path)).replace('_', ' ')
+                    content_html += '<li><a href="%s">%s</a></li>' % (res_path,
+                                                                   res_display)
+                content_html += "</ul>"
+            else:
+                content_html = "No Results for search %s" % pattern
+            date_file = None
+        # generate header html with template header, css and js config.
+        header_html = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 ' \
+                      "Final//EN><html><head>\n"
+
+        headers_content = '<title>Process by Rest2Web</title>'
+        try:
+            headers_file = os.path.join(self.config['config']["folder_config"],
+                                        'includes',
+                                        self.config['template']["headers_file"])
+            f = open(headers_file)
+            headers_content = f.read()
+            f.close()
+        except:
+            pass
+        header_html += headers_content
+        for file_css in self.config['style']["files_css"]:
+            header_html += '<link href="%s" ' % file_css
+            header_html += 'rel="stylesheet" type="text/css">\n'
+        for file_js in self.config['style']["files_js"]:
+            header_html += '<script type="text/javascript" '\
+                           'src="%s"></script>' % file_js
+        header_html += '</head><body>'
+        # genere gototop function.
+        gototop_html = '<a name="top" /><div id="gototop"><a '\
+                       'href="#top"><img src="/includes/images/gototop.png"' \
+                       ' alt="Go to top page"' \
+                       ' title="Go to top page"></a></div>'
+        # generate title zone with breadcrum, template title and search form.
+        title_content = 'Process by Rest2Web'
+        try:
+            title_file = os.path.join(self.config['config']["folder_config"],
+                                        'includes',
+                                        self.config['template']["title_file"])
+            f = open(title_file)
+            title_content = f.read()
+            f.close()
+        except:
+            pass
+
+        title_html = ['<div id="header"><div id="name_site">%s</div>' %
+                      title_content,
+                     '<div id="breadcrumb">']
+        #breadcrum
+        words_path = ('/%s' % path_rel).split('/')
+        path_link = ''
+        link_name = ''
+        for word_path in words_path[:-1]:
+            link_name += word_path + '/'
+            display_name = self.get_display_name(word_path) + '/'
+            title_html.append('<em><a href="%s">%s</a></em>'
+                             % (quote(link_name), escape(display_name)))
+        display_name = self.get_display_name(words_path[-1])
+        if unicode(display_name[-3:]).replace(' ','_') in \
+               self.config['options']["localizations"]:
+            display_name = display_name[:-3]
+        link_name += words_path[-1]
+        title_html.append('<em><a href="%s">%s</a></em>'
+                          % (quote(link_name), escape(display_name)))
+        title_html.append('</div>')
+        #searchform
+        title_html.append('<div id="search">'
+                         '<form name="input" action="/search" method="get">'
+                         '<input type="text" name="pattern" />'
+                         '<input type="submit" value="Search" />'
+                         '</form></div>')
+        title_html.append('</div>')
+
+        title_html = ''.join(title_html)
+        #genarate menu
+        path_menu = os.path.join(path_doc, path_rel)
+        menu_content = self.get_list_menu_folder(path_doc, path_menu, 'Home',
+                                                 first=True)
+        if menu_content:
+            menu_html = '<div id="menu_container" >' \
+                        '<div id="menu_relative"><div id="menu_fold"' \
+                        '"><img src="/includes/images/fold_menu.png" onClick="return fold_menu(this);"/>' \
+                        '</div></div>' \
+                        '<div id="menu"><ul>'
+            menu_html += menu_content
+            menu_html += '</ul></div><div id="menu_clear"></div></div>'
+        #generate process
+        credit_html = 'Process by Rest2Web.'
+        try:
+            credit_name = os.path.join(self.config['config']["folder_config"],
+                                       'includes',
+                                       self.config['template']["credit_file"])
+            f = open(credit_name)
+            credit_html = f.read()
+            f.close()
+        except:
+            pass
+        footer_html = '</div><div id="footer">%s</div></body>\n</html>\n' % \
+                      credit_html
+        #prepare datas_to_send
+        if self.do_get:
+            datas_to_send = ''.join([header_html,
+                                     gototop_html,
+                                     title_html,
+                                     menu_html,
+                                     '<div id="content_rest">',
+                                     content_html,
+                                     "</div>",
+                                     footer_html])
+        else:
+            datas_to_send = ''
+        encoding = getfilesystemencoding()
+        try:
+            datas_to_send = datas_to_send.encode(encoding)
+        except:
+            pass
+        size_file = len(datas_to_send)
+        ctype = "text/html; charset=%s" % encoding
+        return self.send_file(f, ctype, size_file, date_file,
+                              datas_to_send=datas_to_send)
+
+    def get_display_name(self, name):
+        display_name = escape(unquote(name))
+        return display_name.replace('_', ' ')
+
+    def send_file(self, f, ctype, size_file, date_file=None,
+                  datas_to_send=False):
+        self.send_response(200)
+        self.send_header("Content-type", ctype)
+        self.send_header("Content-Length", size_file)
+        if date_file:
+            self.send_header("Last-Modified", date_file)
+        self.end_headers()
+        if datas_to_send:
+            self.wfile.write(datas_to_send)
+            return None
+        return f
+
+    def get_list_menu_folder(self, path_rep, path_menu, name_folder,
+                             first=False):
+        path_doc = self.config['server']["path_documents"]
+        index_name = self.config['server']["default_index"]
+        order_name = self.config['server']["default_order"]
+        path_order = os.path.join(path_rep, order_name)
+        try:
+            list_files = os.listdir(path_rep)
+        except os.error:
+            # No permission to list directory.
+            return ''
+        # sortfile with configfile !!
+        self.has_index = False
+        if index_name in list_files:
+            list_files.remove(index_name)
+            self.has_index = True
+        for lang in self.config['options']["localizations"]:
+            if index_name+lang in list_files:
+                list_files.remove(index_name+lang)
+                self.has_index = True
+        list_files.sort(key=lambda a: a.lower())
+        if order_name in list_files:
+            list_files.remove(order_name)
+            ordered_file = []
+            f = open(path_order)
+            lines = f.readlines()
+            f.close()
+            for line in lines:
+                name = line.strip()
+                if name in list_files:
+                    ordered_file.append(name)
+                    list_files.remove(name)
+            ordered_file.extend(list_files)
+            list_files = ordered_file
+        folders = ''
+        rest_files = ''
+        file_localized = []
+        for name_elem in list_files:
+            exclude_elem = False
+            for exclude_file in self.config['options']["exclude_documents"]:
+                if re.match("^%s$" % exclude_file, name_elem):
+                    exclude_elem = True
+                    break
+            if exclude_elem:
+                continue
+            path_elem = os.path.join(path_rep, name_elem)
+            if os.path.isdir(path_elem):
+                folders += self.get_list_menu_folder(path_elem,
+                                                     path_menu,
+                                                     name_elem)
+            else:
+                (is_rest, extension, ctype) = self.mime_is_rest(path_elem)
+                if is_rest:
+                    display_name_elem = self.get_display_name(name_elem)
+                    if extension and extension in \
+                           self.config['options']["extensions_rest"]:
+                        display_name_elem = display_name_elem[:-len(extension)]
+                    if unicode(display_name_elem[-3:]).replace(' ','_') in \
+                           self.config['options']["localizations"]:
+                        display_name_elem = display_name_elem[:-3]
+                        if display_name_elem in file_localized:
+                            continue
+                        file_localized.append(display_name_elem)
+                    path_rel_elem = path_elem.split(path_doc)[1]
+                    if path_elem == path_menu:
+                        class_actu = ' class="active"'
+                    else:
+                        class_actu = ' class="rest_file"'
+                    rest_files += '<li %s><a href="%s">%s</a></li>' % \
+                                  (class_actu, path_rel_elem,
+                                   display_name_elem)
+        elems = folders + rest_files
+        if elems or self.has_index:
+            display_name_folder = self.get_display_name(name_folder)
+            path_rel = path_rep.split(path_doc)[1]
+            if first:
+                if path_doc == path_menu[:-1]:
+                    class_actu = ' class="folder_active"'
+                else:
+                    class_actu = ' class="not_browsed"'
+                folder_html = '<li %s><a href="/">%s</a></li>' % \
+                                  (class_actu, display_name_folder)
+                folder_html += elems
+            else:
+                if path_rep == path_menu:
+                    class_actu = ' class="folder_active"'
+                elif path_menu.find(path_rep) == -1:
+                    class_actu = ' class="not_browsed"'
+                else:
+                    class_actu = ' class="browsed"'
+                folder_html = '<li %s>' % class_actu
+                folder_html += '<div class="fold" onClick="' \
+                               'return fold(this);' \
+                               '"><img src="/includes/images/fold.png" />' \
+                               '</div><div class="unfold" onClick="' \
+                               'return unfold(this);' \
+                               '"><img src="/includes/images/unfold.png" />'
+                folder_html += '</div><a href="%s">%s</a><ul>' % (path_rel,
+                                                       display_name_folder)
+                folder_html += elems
+                folder_html += '</ul></li>'
+            return folder_html
+        else:
+            return ""
+
+    def mime_is_rest(self, path_file):
+        ctype = self.magic_mime.file(path_file)
+        base, extension = splitext(path_file)
+        extension = extension.lower()
+        is_rest = False
+        if ctype and ctype.find('text/') != -1 and \
+               extension in self.config['options']["extensions_rest"]:
+            is_rest = True
+        return (is_rest, extension, ctype)
+
+config_server = {'config':   {'file_config': '/etc/rest2web/rest2web.conf',
+                              'folder_config': '/etc/rest2web'},
+                 'server':   {'hostname': 'localhost',
+                              'port': '8080',
+                              'path_documents': os.getcwd(),
+                              'default_index': 'index'},
+                 'style':    {'files_css': ['/config/default.css', ]},
+                 'options':  {'extensions_rest':
+                              ['', '.rest', '.rst', '.text', '.txt'],
+                              'exclude_documents':
+                              ['.git', '.bzr', '.bzrignore']},
+                 'template': {'name_site': "REST2WEB SITE", },
+                 'template': {'credits': "process by Rest2Web", },
+                 }
+
+desc = 'Restructured Text to html WebServer with menu and search.'
+
+parser = ArgumentParser(description=desc)
+parser.add_argument('-c', '--configuration-file', action="store",
+                    dest="config_file_config",
+                    default=config_server['config']['file_config'],
+                    help="Configuration File")
+parser.add_argument('-n', '--hostname', action="store", dest="server_hostname",
+                    help="server hostname")
+parser.add_argument('-p', '--port', action="store", dest="server_port",
+                    help="Server port")
+parser.add_argument('-d', '--path-documents', action="store",
+                    dest="server_path_documents",
+                    help="path for documents to publish")
+parser.add_argument('-v', '--version', action="store_true",
+                    dest="config_version",
+                    help="show the rest2web version")
+
+dico_argparse = parser.parse_args().__dict__
+
+file_config = dico_argparse['config_file_config']
+if os.path.isfile(file_config):
+    config_r2w = ConfigParser()
+    config_r2w.read(file_config)
+    for section in config_r2w.sections():
+        for option in config_r2w.options(section):
+            value = config_r2w.get(section, option)
+            if isinstance(value, str) and value[0] == '[':
+                config_server[section][option] = json_loads(value)
+            else:
+                config_server[section][option] = value
+
+for elem in dico_argparse.keys():
+    if dico_argparse[elem]:
+        (section, option) = elem.split('_', 1)
+        config_server[section][option] = dico_argparse[elem]
+
+if config_server['server']["path_documents"][-1] == '/':
+    config_server['server']["path_documents"] = \
+      config_server['server']["path_documents"][:-1]
+
+if 'config_version' in dico_argparse.keys() \
+        and dico_argparse["config_version"]:
+    print 'version : Rest2Web/' + __version__
+    sys_exit(0)
+
+server_address = (config_server['server']["hostname"],
+                  int(config_server['server']["port"]))
+Rest2WebRequestHandler.protocol_version = "HTTP/1.0"
+httpd = HTTPServer(server_address, Rest2WebRequestHandler)
+sa = httpd.socket.getsockname()
+print "Documents : %s" % config_server['server']["path_documents"]
+print "Serving HTTP on", sa[0], "port", sa[1], "..."
+httpd.config = config_server
+httpd.serve_forever()
