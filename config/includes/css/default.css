@@ -299,7 +299,7 @@ body {
 
 #menu{
     border-style: solid;
-    border-width: 0px 2px 0px 0px;
+    border-width: 0px 1px 0px 0px;
     float: left;
     left: 0px;
     margin: 0px;
@@ -354,7 +354,7 @@ body {
 }
 
 #menu li{
-    border-width: 0px 0px 2px 0px;
+    border-width: 0px 0px 1px 0px;
     list-style-type: none;
     padding: 0px;
     margin: 0px;
@@ -363,6 +363,7 @@ body {
 
 #menu li li{
     border-width: 1px 0px 0px 1px;
+    border-style: dotted;
 }
 
 
