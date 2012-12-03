@@ -17,8 +17,8 @@ Fonctions :
 * Templating layout and content.
 * Syntax Color in code block
 
-Projet :
+Documentation.
 
-* Doc code
-* Test unit
+Tests unitaires.
+
 
