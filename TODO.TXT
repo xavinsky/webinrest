@@ -6,6 +6,7 @@ Interface :
 
 * flag for country
 * fold/unfold section
+* enlarge fold/unfold buttons menu for marge size.
 
 Clean :
 
@@ -20,5 +21,4 @@ Fonctions :
 Documentation.
 
 Tests unitaires.
-
 
