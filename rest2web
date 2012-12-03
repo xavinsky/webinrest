@@ -480,7 +480,7 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
                                '</div><div class="unfold" onClick="' \
                                'return unfold(this);' \
                                '"><img src="/includes/images/unfold.png" />'
-                folder_html += '</div><a href="%s">%s</a><ul>' % (path_rel,
+                folder_html += '</div><a href="%s/">%s</a><ul>' % (path_rel,
                                                        display_name_folder)
                 folder_html += elems
                 folder_html += '</ul></li>'
