@@ -7,6 +7,7 @@ Interface :
 * flag for country
 * fold/unfold section
 * enlarge fold/unfold buttons menu for marge size.
+* language default (something like ?lg=FR, a cookie or a detection language)
 
 Clean :
 
@@ -17,6 +18,7 @@ Fonctions :
 * Templating css color.
 * Templating layout and content.
 * Syntax Color in code block
+* l'url shoud not have lang in the name file.
 
 Documentation.
 
