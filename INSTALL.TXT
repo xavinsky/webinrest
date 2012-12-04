@@ -2,32 +2,77 @@
 INSTALL REST2WEB
 ################
 
-Debian squeeze (python 2.6) en root ::
+Quick Install
+-------------
+
+For standard debian squeese and debian wheezy install, you can just lauch the install script::
+
+    install/install_debian.sh
+
+If you want adapt the installation to other system or just for better comprehension,
+read the rest of this file.
+
+Install dependencies
+--------------------
+
+Debian root ::
+
     sudo aptitude install python-docutils python-magic
+
+If you use git version :
+
+Debian root::
+
+    sudo aptitude install git
+
+If you use zip version :
+
+Debian root::
+
+    sudo aptitude install unzip
+
+Get rest2web
+------------
+
+git version, Debian root::
+
     cd /usr/local/lib
     git clone https://github.com/xaviermanach/rest2web.git
+
+zip version, Debian root::
+    cd /usr/local/lib
+    wget https://github.com/xaviermanach/rest2web/archive/master.zip
+
+Install rest2web
+----------------
+
+know your python version ::
+    python -V
+
+for python 2.6, debian squeeze root : 
     ln -s /usr/local/lib/rest2web/rest2web /usr/local/bin
     ln -s /usr/local/lib/rest2web/searchinfiles.py /usr/local/lib/python2.6/dist-packages/
+
+for python 2.7, debian wheezy root : 
+    ln -s /usr/local/lib/rest2web/rest2web /usr/local/bin
+    ln -s /usr/local/lib/rest2web/searchinfiles.py /usr/local/lib/python2.6/dist-packages/
+    
+Get config rest2web
+-------------------
+
+If you have git version, you can choice to follow includes updates or not.
+Then, I will propose you two version.
+
+get standard configuration::
+    ## take care to missing changes in includes when update (follow updates notes)
     mkdir /etc/rest2web
     cp -r /usr/local/lib/rest2web/config/* /etc/rest2web
     mkdir -p /var/www/rest2web
 
-Debian wheezy (python 2.7) en root ::
-    sudo aptitude install python-docutils python-magic
-    cd /usr/local/lib
-    git clone https://github.com/xaviermanach/rest2web.git
-    ln -s /usr/local/lib/rest2web/rest2web /usr/local/bin
-    ln -s /usr/local/lib/rest2web/searchinfiles.py /usr/local/lib/python2.7/dist-packages/
+follow includes folder update (with git version only)::
+    ## take care to conflic in /etc/rest2web/includes/folder when update/
     mkdir /etc/rest2web
-    cp -r /usr/local/lib/rest2web/config/* /etc/rest2web
-    mkdir -p /var/www/rest2web en root.
-
-Debian generique (squeeze and wheezy) ::
-    sudo aptitude install python-docutils python-magic
-    cd /usr/local/lib
-    git clone https://github.com/xaviermanach/rest2web.git
-    ln -s /usr/local/lib/rest2web/rest2web /usr/local/bin
-    ln -s /usr/local/lib/rest2web/searchinfiles.py /usr/local/lib/python2.`python -V 2>&1 | awk -F '.' '{print $2}'`/dist-packages/
-    mkdir /etc/rest2web
-    cp -r /usr/local/lib/rest2web/config/* /etc/rest2web
+    cp -r /usr/local/lib/rest2web/config/rest2web.conf /etc/rest2web
+    ls -s /usr/local/lib/rest2web/config/includes /etc/rest2web
     mkdir -p /var/www/rest2web
+
