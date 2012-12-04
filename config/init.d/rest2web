@@ -1,0 +1,109 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          rest2web
+# Required-Start:    $remote_fs $syslog $ssh
+# Required-Stop:     $remote_fs $syslog $ssh
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: rest2web demon utility 
+# Description:       rest2web Simple http server for publish REST Content.
+#                    This script demonize this server.
+#                    This file must be placed in /etc/init.d.
+### END INIT INFO
+# Author: Xavier Manach <xavinsky@tekio.org>
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="rest2web "
+NAME=rest2web
+EXEC_NAME=/usr/local/bin/$NAME
+EXEC_ARGS=""
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+
+[ -x "$EXEC_NAME" ] || exit 0
+
+do_start()
+{
+        [ -r "$PIDFILE" ] && return 1
+	start-stop-daemon --start --quiet --background --pidfile $PIDFILE \
+          --make-pidfile --exec $EXEC_NAME -- $EXEC_ARGS || return 2
+}
+
+do_stop()
+{
+	start-stop-daemon --stop --quiet --pidfile $PIDFILE || return 2
+	rm -f $PIDFILE
+	return $?
+}
+
+do_status()
+{
+        [ -r "$PIDFILE" ] || return 1
+	return 0
+}
+case "$1" in
+  start)
+	echo -n "Starting $DESC : "
+	do_start
+	case "$?" in
+		0) echo "OK" ;;
+                1) echo "Already Started" ;;
+		2) echo "KO" ;;
+	esac
+	;;
+  stop)
+        echo -n "Stopping $DESC : "
+	do_stop
+	case "$?" in
+		0) echo "OK" ;;
+                1) echo "Already Stopped" ;;
+		2) echo "KO" ;;
+	esac
+	;;
+  status)
+	echo -n "Status $DESC : "
+        do_status
+	case "$?" in
+		0) echo "Running" ;;
+		1) echo "Not Running" ;;
+	esac
+        ;;
+  info)
+        echo -n "Pid in file ($PIDFILE) : "
+        cat "$PIDFILE" 2>/dev/nullecho
+	echo
+        echo -n "Pid in proc ($NAME) : "
+        ps auwwx | grep "$NAME" | grep -v grep | grep -v init.d | grep -v service | awk '{print $2}'
+        echo
+        echo "process : "
+	ps auwwx | grep "$NAME" | grep -v grep | grep -v init.d | grep -v service 
+	;;
+  kill)
+        echo "delete file ($PIDFILE) "
+        cat "$PIDFILE" 2>/dev/nullecho
+	rm -f $PIDFILE
+        echo "kill -9 process : "
+	ps auwwx | grep "$NAME" | grep -v grep | grep -v init.d | grep -v service 
+        [ $? -eq 0 ] && kill -9 `ps auwwx | grep "$NAME" | grep -v grep | grep -v init.d | grep -v service | awk '{print $2}'`
+        ;;
+  restart)
+        echo -n "Stopping $DESC : "
+	do_stop
+	case "$?" in
+		0) echo "OK" ;;
+                1) echo "Already Stopped" ;;
+		2) echo "KO" ;;
+	esac
+	echo -n "Starting $DESC : "
+	do_start
+	case "$?" in
+		0) echo "OK" ;;
+                1) echo "Already Started" ;;
+		2) echo "KO" ;;
+	esac
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|restart|status|info|kill}" >&2
+	exit 3
+	;;
+esac

@@ -66,13 +66,28 @@ Then, I will propose you two version.
 get standard configuration::
     ## take care to missing changes in includes when update (follow updates notes)
     mkdir /etc/rest2web
-    cp -r /usr/local/lib/rest2web/config/* /etc/rest2web
+    cp /usr/local/lib/rest2web/config/rest2web.conf /etc/rest2web
+    cp /usr/local/lib/rest2web/config/init.d/rest2web /etc/init.d
+    cp -r /usr/local/lib/rest2web/config/includes /etc/rest2web
     mkdir -p /var/www/rest2web
 
 follow includes folder update (with git version only)::
     ## take care to conflic in /etc/rest2web/includes/folder when update/
     mkdir /etc/rest2web
-    cp -r /usr/local/lib/rest2web/config/rest2web.conf /etc/rest2web
+    cp /usr/local/lib/rest2web/config/rest2web.conf /etc/rest2web
+    cp /usr/local/lib/rest2web/config/init.d/rest2web /etc/init.d
     ls -s /usr/local/lib/rest2web/config/includes /etc/rest2web
     mkdir -p /var/www/rest2web
 
+
+Deamonize 
+---------
+
+activate::
+    update-rc.d rest2web defaults
+
+desactivate::
+    update-rc.d -f rest2web remove
+
+show where actived::
+    ls /etc/rc* | grep rest2web
