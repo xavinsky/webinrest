@@ -87,6 +87,7 @@ install :
     aptitude install supervisor
     cp /usr/local/lib/rest2web/config/supervisord/rest2web.conf /etc/supervisor/conf.d/
     supervisorctl reread
+    supervisorctl reload
 
 command :
     supervisorctl rest2web stop
