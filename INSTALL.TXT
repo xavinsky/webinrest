@@ -67,7 +67,6 @@ get standard configuration::
     ## take care to missing changes in includes when update (follow updates notes)
     mkdir /etc/rest2web
     cp /usr/local/lib/rest2web/config/rest2web.conf /etc/rest2web
-    cp /usr/local/lib/rest2web/config/init.d/rest2web /etc/init.d
     cp -r /usr/local/lib/rest2web/config/includes /etc/rest2web
     mkdir -p /var/www/rest2web
 
@@ -75,19 +74,48 @@ follow includes folder update (with git version only)::
     ## take care to conflic in /etc/rest2web/includes/folder when update/
     mkdir /etc/rest2web
     cp /usr/local/lib/rest2web/config/rest2web.conf /etc/rest2web
-    cp /usr/local/lib/rest2web/config/init.d/rest2web /etc/init.d
     ls -s /usr/local/lib/rest2web/config/includes /etc/rest2web
     mkdir -p /var/www/rest2web
 
+Deamonize with supervisord
+--------------------------
 
-Deamonize 
----------
+this is the strong option.
+I encourage use it.
 
-activate::
-    update-rc.d rest2web defaults
+install :
+    aptitude install supervisor
+    cp /usr/local/lib/rest2web/config/supervisord/rest2web.conf /etc/supervisor/conf.d/
+    supervisorctl reread
 
-desactivate::
-    update-rc.d -f rest2web remove
+command :
+    supervisorctl rest2web stop
+    supervisorctl rest2web start
+    supervisorctl rest2web status
+    supervisorctl rest2web restart
 
-show where actived::
-    ls /etc/rc* | grep rest2web
+uninstall :
+    rm -f /etc/supervisor/conf.d/rest2web.conf
+
+
+Deamonize with init.d
+---------------------
+
+the weak option is init.d script
+
+install :
+    cp /usr/local/lib/rest2web/config/init.d/rest2web /etc/init.d
+    insserv rest2web
+
+command :
+    service rest2web start
+    service rest2web restart
+    service rest2web status
+    service rest2web infos
+    service rest2web stop
+    # brutal way :
+    service rest2web kill
+ 
+uninstall :
+    insserv --remove rest2web
+

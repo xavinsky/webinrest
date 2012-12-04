@@ -29,7 +29,6 @@ TODO :
 import os
 import re
 
-from sys import getfilesystemencoding
 from sys import exit as sys_exit
 from json import loads as json_loads
 from cgi import escape
@@ -380,7 +379,7 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
                                      footer_html])
         else:
             datas_to_send = ''
-        encoding = getfilesystemencoding()
+        encoding = 'utf-8'
         try:
             datas_to_send = datas_to_send.encode(encoding)
         except:
