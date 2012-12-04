@@ -10,3 +10,5 @@ cp -r /usr/local/lib/rest2web/config/includes /etc/rest2web
 mkdir -p /var/www/rest2web
 cp /usr/local/lib/rest2web/config/supervisord/rest2web.conf /etc/supervisor/conf.d/
 supervisorctl reread
+supervisorctl reload
+
