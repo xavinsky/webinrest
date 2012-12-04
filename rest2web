@@ -169,6 +169,30 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
                             self.config['config']["folder_config"],
                             'includes',
                             self.config['template']["no_index_file"])
+            if not os.path.exists(path_actu):
+                for lang in self.config['options']["localizations"]:
+                    path_lang = path_actu + lang
+                    if os.path.exists(path_lang):
+                        path_actu = path_lang
+                        break
+                dec_pts = path_actu.split('.')
+                if len(dec_pts) > 1:
+                    path_base = '.'.join(dec_pts[:-1])
+                    extension = dec_pts[-1]
+                else:
+                    path_base = path_actu
+                    extension = ''
+                for lang in self.config['options']["localizations"]:
+                    path_lang = path_actu + lang
+                    if os.path.exists(path_lang):
+                        path_actu = path_lang
+                        break
+                    path_lang = path_base + lang + '.' + extension
+                    print path_base, lang, extension
+                    if os.path.exists(path_lang):
+                        path_actu = path_lang
+                        break
+
             # end parse URL
             (is_rest, extension, ctype) = self.mime_is_rest(path_actu)
             f = None
@@ -446,6 +470,7 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
                         if display_name_elem in file_localized:
                             continue
                         file_localized.append(display_name_elem)
+                        path_elem = path_elem[:-3-len(extension)] + extension
                     path_rel_elem = path_elem.split(path_doc)[1]
                     if path_elem == path_menu:
                         class_actu = ' class="active"'
@@ -454,6 +479,7 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
                     rest_files += '<li %s><a href="%s">%s</a></li>' % \
                                   (class_actu, path_rel_elem,
                                    display_name_elem)
+
         elems = folders + rest_files
         if elems or self.has_index:
             display_name_folder = self.get_display_name(name_folder)
