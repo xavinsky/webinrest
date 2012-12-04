@@ -103,12 +103,12 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
             content_html = parts['body_pre_docinfo'] + parts['fragment']
         except:
             content_html = 'Invalid Rest Structure.'
-        pattern = '<col width="(\d)*%" />'
-        content_html = re.sub(pattern, '', content_html, flags=re.DOTALL)
+        pattern = '<col width="([^\d])*%" />'
+        content_html = re.sub(pattern, '', content_html)
         content_html = content_html.replace('<col class="label" /><col />',
                                             '')
-        pattern = '<colgroup>(\s)*</colgroup>'
-        content_html = re.sub(pattern, '', content_html, flags=re.DOTALL)
+        pattern = '<colgroup>([^\s])*</colgroup>'
+        content_html = re.sub(pattern, '', content_html)
         return (date_file, content_html)
 
     def send_head(self):

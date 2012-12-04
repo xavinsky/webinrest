@@ -17,7 +17,7 @@ Install dependencies
 
 Debian root ::
 
-    sudo aptitude install python-docutils python-magic
+    sudo aptitude install python-docutils python-magic python-argparse
 
 If you use git version :
 
