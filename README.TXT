@@ -11,16 +11,7 @@ in folder structure with a navigation menu.
 Install
 -------
 
-Install in wheezy debian environement ::
-
-    sudo su
-    aptitude install python-docutils python-magic
-    tar zxvf rest2web.tgz
-    mv rest2web /usr/local/lib
-    ln -s /usr/local/lib/rest2web/rest2web /usr/local/bin
-    ln -s /usr/local/lib/rest2web/searchinfiles.py /usr/local/lib/python2.7/dist-packages/
-    mkdir /etc/rest2web
-    cp -r /usr/local/lib/rest2web/config/ /etc/rest2web
+see INSTALL.txt
 
 Configure
 ---------
