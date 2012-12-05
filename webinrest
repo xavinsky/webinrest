@@ -4,20 +4,20 @@
 """
 Copyright © 2012 Xavier Manach <xav@tekio.org>
 
-This file is part of Rest2Web.
+This file is part of Webinrest.
 
-Rest2Web is free software: you can redistribute it and/or modify
+Webinrest is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-Rest2Web is distributed in the hope that it will be useful,
+Webinrest is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Rest2Web. If not, see <http://www.gnu.org/licenses/>.
+along with Webinrest. If not, see <http://www.gnu.org/licenses/>.
 """
 
 """
@@ -48,7 +48,7 @@ from search_in_files import search_in_text_files
 __version__ = "0.1"
 
 
-class Rest2WebRequestHandler(BaseHTTPRequestHandler):
+class WebinrestRequestHandler(BaseHTTPRequestHandler):
     """
     Handler for Resr2Web server.
 
@@ -68,7 +68,7 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
 
     """
 
-    server_version = "Rest2Web/" + __version__
+    server_version = "Webinrest/" + __version__
     magic_mime = magic_open(MAGIC_MIME)
     magic_mime.load()
 
@@ -278,7 +278,7 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
         header_html = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 ' \
                       "Final//EN><html><head>\n"
 
-        headers_content = '<title>Process by Rest2Web</title>'
+        headers_content = '<title>Process by Webinrest</title>'
         try:
             headers_file = os.path.join(self.config['config']["folder_config"],
                                        'includes',
@@ -302,7 +302,7 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
                        ' alt="Go to top page"' \
                        ' title="Go to top page"></a></div>'
         # generate title zone with breadcrum, template title and search form.
-        title_content = 'Process by Rest2Web'
+        title_content = 'Process by Webinrest'
         try:
             title_file = os.path.join(self.config['config']["folder_config"],
                                         'includes',
@@ -356,7 +356,7 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
             menu_html += menu_content
             menu_html += '</ul></div><div id="menu_clear"></div></div>'
         #generate process
-        credit_html = 'Process by Rest2Web.'
+        credit_html = 'Process by Webinrest.'
         try:
             credit_name = os.path.join(self.config['config']["folder_config"],
                                        'includes',
@@ -524,8 +524,8 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
             is_rest = True
         return (is_rest, extension, ctype)
 
-config_server = {'config':   {'file_config': '/etc/rest2web/rest2web.conf',
-                              'folder_config': '/etc/rest2web'},
+config_server = {'config':   {'file_config': '/etc/webinrest/webinrest.conf',
+                              'folder_config': '/etc/webinrest'},
                  'server':   {'hostname': 'localhost',
                               'port': '8080',
                               'path_documents': os.getcwd(),
@@ -535,8 +535,8 @@ config_server = {'config':   {'file_config': '/etc/rest2web/rest2web.conf',
                               ['', '.rest', '.rst', '.text', '.txt'],
                               'exclude_documents':
                               ['.git', '.bzr', '.bzrignore']},
-                 'template': {'name_site': "REST2WEB SITE", },
-                 'template': {'credits': "process by Rest2Web", },
+                 'template': {'name_site': "WEBINREST SITE", },
+                 'template': {'credits': "process by Webinrest", },
                  }
 
 desc = 'Restructured Text to html WebServer with menu and search.'
@@ -555,7 +555,7 @@ parser.add_argument('-d', '--path-documents', action="store",
                     help="path for documents to publish")
 parser.add_argument('-v', '--version', action="store_true",
                     dest="config_version",
-                    help="show the rest2web version")
+                    help="show the webinrest version")
 
 dico_argparse = parser.parse_args().__dict__
 
@@ -582,13 +582,13 @@ if config_server['server']["path_documents"][-1] == '/':
 
 if 'config_version' in dico_argparse.keys() \
         and dico_argparse["config_version"]:
-    print 'version : Rest2Web/' + __version__
+    print 'version : Webinrest/' + __version__
     sys_exit(0)
 
 server_address = (config_server['server']["hostname"],
                   int(config_server['server']["port"]))
-Rest2WebRequestHandler.protocol_version = "HTTP/1.0"
-httpd = HTTPServer(server_address, Rest2WebRequestHandler)
+WebinrestRequestHandler.protocol_version = "HTTP/1.0"
+httpd = HTTPServer(server_address, WebinrestRequestHandler)
 sa = httpd.socket.getsockname()
 print "Documents : %s" % config_server['server']["path_documents"]
 print "Serving HTTP on", sa[0], "port", sa[1], "..."

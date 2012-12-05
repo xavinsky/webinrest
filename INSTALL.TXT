@@ -1,6 +1,6 @@
-################
-INSTALL REST2WEB
-################
+#################
+INSTALL WEBINREST
+#################
 
 Quick Install
 -------------
@@ -31,51 +31,51 @@ Debian root::
 
     sudo aptitude install unzip
 
-Get rest2web
-------------
+Get webinrest
+-------------
 
 git version, Debian root::
 
     cd /usr/local/lib
-    git clone https://github.com/xaviermanach/rest2web.git
+    git clone https://github.com/xaviermanach/webinrest.git
 
 zip version, Debian root::
     cd /usr/local/lib
-    wget https://github.com/xaviermanach/rest2web/archive/master.zip
+    wget https://github.com/xaviermanach/webinrest/archive/master.zip
 
-Install rest2web
-----------------
+Install webinrest
+-----------------
 
 know your python version ::
     python -V
 
 for python 2.6, debian squeeze root : 
-    ln -s /usr/local/lib/rest2web/rest2web /usr/local/bin
-    ln -s /usr/local/lib/rest2web/searchinfiles.py /usr/local/lib/python2.6/dist-packages/
+    ln -s /usr/local/lib/webinrest/webinrest /usr/local/bin
+    ln -s /usr/local/lib/webinrest/searchinfiles.py /usr/local/lib/python2.6/dist-packages/
 
 for python 2.7, debian wheezy root : 
-    ln -s /usr/local/lib/rest2web/rest2web /usr/local/bin
-    ln -s /usr/local/lib/rest2web/searchinfiles.py /usr/local/lib/python2.6/dist-packages/
+    ln -s /usr/local/lib/webinrest/webinrest /usr/local/bin
+    ln -s /usr/local/lib/webinrest/searchinfiles.py /usr/local/lib/python2.6/dist-packages/
     
-Get config rest2web
--------------------
+Get config webinrest
+--------------------
 
 If you have git version, you can choice to follow includes updates or not.
 Then, I will propose you two version.
 
 get standard configuration::
     ## take care to missing changes in includes when update (follow updates notes)
-    mkdir /etc/rest2web
-    cp /usr/local/lib/rest2web/config/rest2web.conf /etc/rest2web
-    cp -r /usr/local/lib/rest2web/config/includes /etc/rest2web
-    mkdir -p /var/www/rest2web
+    mkdir /etc/webinrest
+    cp /usr/local/lib/webinrest/config/webinrest.conf /etc/webinrest
+    cp -r /usr/local/lib/webinrest/config/includes /etc/webinrest
+    mkdir -p /var/www/webinrest
 
 follow includes folder update (with git version only)::
-    ## take care to conflic in /etc/rest2web/includes/folder when update/
-    mkdir /etc/rest2web
-    cp /usr/local/lib/rest2web/config/rest2web.conf /etc/rest2web
-    ls -s /usr/local/lib/rest2web/config/includes /etc/rest2web
-    mkdir -p /var/www/rest2web
+    ## take care to conflic in /etc/webinrest/includes/folder when update/
+    mkdir /etc/webinrest
+    cp /usr/local/lib/webinrest/config/webinrest.conf /etc/webinrest
+    ls -s /usr/local/lib/webinrest/config/includes /etc/webinrest
+    mkdir -p /var/www/webinrest
 
 Deamonize with supervisord
 --------------------------
@@ -85,18 +85,18 @@ I encourage use it.
 
 install :
     aptitude install supervisor
-    cp /usr/local/lib/rest2web/config/supervisord/rest2web.conf /etc/supervisor/conf.d/
+    cp /usr/local/lib/webinrest/config/supervisord/webinrest.conf /etc/supervisor/conf.d/
     supervisorctl reread
     supervisorctl reload
 
 command :
-    supervisorctl rest2web stop
-    supervisorctl rest2web start
-    supervisorctl rest2web status
-    supervisorctl rest2web restart
+    supervisorctl webinrest stop
+    supervisorctl webinrest start
+    supervisorctl webinrest status
+    supervisorctl webinrest restart
 
 uninstall :
-    rm -f /etc/supervisor/conf.d/rest2web.conf
+    rm -f /etc/supervisor/conf.d/webinrest.conf
 
 
 Deamonize with init.d
@@ -105,18 +105,18 @@ Deamonize with init.d
 the weak option is init.d script
 
 install :
-    cp /usr/local/lib/rest2web/config/init.d/rest2web /etc/init.d
-    insserv rest2web
+    cp /usr/local/lib/webinrest/config/init.d/webinrest /etc/init.d
+    insserv webinrest
 
 command :
-    service rest2web start
-    service rest2web restart
-    service rest2web status
-    service rest2web infos
-    service rest2web stop
+    service webinrest start
+    service webinrest restart
+    service webinrest status
+    service webinrest infos
+    service webinrest stop
     # brutal way :
-    service rest2web kill
+    service webinrest kill
  
 uninstall :
-    insserv --remove rest2web
+    insserv --remove webinrest
 
