@@ -217,7 +217,7 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
 
             if unicode(name_base[-3:]) in \
                    self.config['options']["localizations"]:
-                name_base =  name_base[:-3]
+                name_base = name_base[:-3]
                 langs_results = []
                 for lang in self.config['options']["localizations"]:
                     path_lang = name_base + lang + extension
@@ -234,9 +234,9 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
                     content_html = '<div id="tabs_lang">'
                     first_tab = True
                     for (lang, r) in langs_results:
-                        className = 'tabinactive' 
+                        className = 'tabinactive'
                         if first_tab:
-                            className = 'tabactive' 
+                            className = 'tabactive'
                             first_tab = False
                         content_html += """<div class="%s"
                         id="tab_%s"
@@ -281,8 +281,8 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
         headers_content = '<title>Process by Rest2Web</title>'
         try:
             headers_file = os.path.join(self.config['config']["folder_config"],
-                                        'includes',
-                                        self.config['template']["headers_file"])
+                                       'includes',
+                                       self.config['template']["headers_file"])
             f = open(headers_file)
             headers_content = f.read()
             f.close()
@@ -326,7 +326,7 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
             title_html.append('<em><a href="%s">%s</a></em>'
                              % (quote(link_name), escape(display_name)))
         display_name = self.get_display_name(words_path[-1])
-        if unicode(display_name[-3:]).replace(' ','_') in \
+        if unicode(display_name[-3:]).replace(' ', '_') in \
                self.config['options']["localizations"]:
             display_name = display_name[:-3]
         link_name += words_path[-1]
@@ -349,7 +349,8 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
         if menu_content:
             menu_html = '<div id="menu_container" >' \
                         '<div id="menu_relative"><div id="menu_fold"' \
-                        '"><img src="/includes/images/fold_menu.png" onClick="return fold_menu(this);"/>' \
+                        '"><img src="/includes/images/fold_menu.png"' \
+                        'onClick="return fold_menu(this);"/>' \
                         '</div></div>' \
                         '<div id="menu"><ul>'
             menu_html += menu_content
@@ -423,8 +424,8 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
             list_files.remove(index_name)
             self.has_index = True
         for lang in self.config['options']["localizations"]:
-            if index_name+lang in list_files:
-                list_files.remove(index_name+lang)
+            if index_name + lang in list_files:
+                list_files.remove(index_name + lang)
                 self.has_index = True
         list_files.sort(key=lambda a: a.lower())
         if order_name in list_files:
@@ -463,13 +464,13 @@ class Rest2WebRequestHandler(BaseHTTPRequestHandler):
                     if extension and extension in \
                            self.config['options']["extensions_rest"]:
                         display_name_elem = display_name_elem[:-len(extension)]
-                    if unicode(display_name_elem[-3:]).replace(' ','_') in \
+                    if unicode(display_name_elem[-3:]).replace(' ', '_') in \
                            self.config['options']["localizations"]:
                         display_name_elem = display_name_elem[:-3]
                         if display_name_elem in file_localized:
                             continue
                         file_localized.append(display_name_elem)
-                        path_elem = path_elem[:-3-len(extension)] + extension
+                        path_elem = path_elem[:-3 - len(extension)] + extension
                     path_rel_elem = path_elem.split(path_doc)[1]
                     if path_elem == path_menu:
                         class_actu = ' class="active"'
