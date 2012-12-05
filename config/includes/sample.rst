@@ -2,7 +2,7 @@
 ReStructured Syntax
 ###################
 
-This is only some ReST syntax tested with Rest2Web. 
+This is only some ReST syntax tested with webinrest. 
 You can see `official specification <http://docutils.sourceforge.net/rst.html>`_ or
 `syntax Documenting python <http://docs.python.org/devguide/documenting.html>`_ for others usages.
 

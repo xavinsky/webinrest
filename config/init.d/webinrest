@@ -1,19 +1,19 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          rest2web
+# Provides:          webinrest
 # Required-Start:    networking
 # Required-Stop:     networking
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # X-Interactive:     true
 # Short-Description: Start/stop apache2 web server
-# Short-Description: start stop rest2web utility 
+# Short-Description: start stop webinrest utility 
 ### END INIT INFO
 # Author: Xavier Manach <xavinsky@tekio.org>
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC="rest2web "
-NAME=rest2web
+DESC="webinrest "
+NAME=webinrest
 USER=www-data
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
