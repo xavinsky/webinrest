@@ -8,6 +8,7 @@ Interface :
 * fold/unfold section
 * enlarge fold/unfold buttons menu for marge size.
 * language default (something like ?lg=FR, a cookie or a detection language)
+* differentiate apparence internal and external link
 
 Clean :
 
