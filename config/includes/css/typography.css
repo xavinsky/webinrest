@@ -97,12 +97,12 @@
 	/* Xavinsky add */
 	h1.title {
 		font-size: 250%;
-		background-color: #296bff;
+		background-color: #ffffff;
 /*
 		background-color: #296bff;
 		background-color: #9FB2C7; #3060CC;
 */
-		color: #FFFFFF;
+		color: #20435c;
 		text-shadow: 0em 0em 0.2em #FFFFFF;
 		border-top: 0px;
 		border-bottom: 1px dotted #003454;
@@ -111,6 +111,24 @@
 		padding: 3px;
 		margin: 0px;
 	}
+
+	h1.title:hover{
+		color: #ffffff;
+		background-color: #296bff;
+        }
+
+	h1.title a{
+   	        background:transparent;
+	        border: 0px;
+		color: #20435c;
+		text-shadow: 0em 0em 0.2em #FFFFFF;
+        }
+
+	h1.title a:hover{
+		color: #ffffff;
+		background-color: #296bff;
+        }
+        
 
 	h1 {
 		margin-bottom: 3px;
@@ -133,11 +151,12 @@
 		color: #20435c;
 		text-shadow: 0em 0em 0.2em #20435c;
         }
+
 	h1 a:hover{
 		color: #20435c;
 		background-color: #81a8ff;
         }
-        }
+        
 
 	h2 {
 		background-color: #b4cbff;
