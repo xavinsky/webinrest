@@ -51,11 +51,11 @@ know your python version ::
 
 for python 2.6, debian squeeze root : 
     ln -s /usr/local/lib/webinrest/webinrest /usr/local/bin
-    ln -s /usr/local/lib/webinrest/searchinfiles.py /usr/local/lib/python2.6/dist-packages/
+    ln -s /usr/local/lib/webinrest/search_in_files.py /usr/local/lib/python2.6/dist-packages/
 
 for python 2.7, debian wheezy root : 
     ln -s /usr/local/lib/webinrest/webinrest /usr/local/bin
-    ln -s /usr/local/lib/webinrest/searchinfiles.py /usr/local/lib/python2.6/dist-packages/
+    ln -s /usr/local/lib/webinrest/search_in_files.py /usr/local/lib/python2.6/dist-packages/
     
 Get config webinrest
 --------------------
