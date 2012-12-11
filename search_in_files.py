@@ -50,7 +50,7 @@ def recursion(expression, folder, files):
                         file_node = open(node_path)
                         data_node = file_node.read()
                         file_node.close()
-                        if re.search(expression, data_node):
+                        if re.search(expression, data_node, flags = re.IGNORECASE):
                             results.append(node_path)
     return results
 
@@ -75,6 +75,6 @@ def search_in_text_files(expression, folder='.',
                             file_node = open(node_path)
                             data_node = file_node.read()
                             file_node.close()
-                            if re.search(expression, data_node):
+                            if re.search(expression, data_node, flags = re.IGNORECASE):
                                 results.append(node_path)
     return results
