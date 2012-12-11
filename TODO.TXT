@@ -16,10 +16,10 @@ Clean :
 
 Fonctions :
 
-* search case insensitive
 * Templating css color.
 * Templating layout and content.
 * Syntax Color in code block
+* Syntax Color in search result (?highlight=txt)
 
 Documentation.
 
