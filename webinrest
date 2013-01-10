@@ -290,11 +290,11 @@ class WebinrestRequestHandler(BaseHTTPRequestHandler):
             pass
         header_html += headers_content
         for file_css in self.config['style']["files_css"]:
-            header_html += '<link href="%s" ' % file_css
+            header_html += '<link href="%s" ' % str(file_css)
             header_html += 'rel="stylesheet" type="text/css">\n'
         for file_js in self.config['style']["files_js"]:
             header_html += '<script type="text/javascript" '\
-                           'src="%s"></script>' % file_js
+                           'src="%s"></script>' % str(file_js)
         header_html += '</head><body>'
         # genere gototop function.
         gototop_html = '<a name="top" /><div id="gototop"><a '\
