@@ -25,3 +25,6 @@ Documentation.
 
 Tests unitaires.
 
+BUG : 
+
+* fix search with accent.
