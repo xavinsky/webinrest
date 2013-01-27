@@ -16,6 +16,7 @@ Clean :
 
 Fonctions :
 
+* order (file before folder is possible !?)
 * Templating css color.
 * Templating layout and content.
 * Syntax Color in code block
