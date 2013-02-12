@@ -381,7 +381,7 @@
 		-o-transition: text-shadow 0.5s 0s;
 		-moz-transition: text-shadow 0.5s 0s;
 		-webkit-transition: text-shadow 0.5s 0s;
-		background-color: #b4cbff;
+                background-color: #b4cbff;
 		border-top: 1px solid #6695ff;
 		border-bottom: 1px solid #6695ff;
 		/* Xavinsky end */

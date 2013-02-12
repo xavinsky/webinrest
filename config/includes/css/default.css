@@ -432,6 +432,24 @@ body {
     font-family: "Droid Serif",Georgia,"Times New Roman",Times,serif
 }
 
+#sommaire a.reference.internal{
+    font-weight: normal;
+}
+
+a.reference.internal {
+    background-color: ffffff;
+    color: #20435c;
+    font-weight: bold;
+    border-top: 0px;
+    border-bottom: 2px dotted #b4cbff;
+}
+
+a.reference.internal:hover {
+    border-bottom: 2px solid #20435c;
+}
+
+
+
 #tabs_lang {
     margin: 0px;
     padding: 5px 0px 0px 0px;

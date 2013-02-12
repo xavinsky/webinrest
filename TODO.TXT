@@ -8,7 +8,7 @@ Interface :
 * fold/unfold section
 * enlarge fold/unfold buttons menu for marge size.
 * language default (something like ?lg=FR, a cookie or a detection language)
-* differentiate apparence internal and external link
+* page 404
 
 Clean :
 
@@ -21,6 +21,7 @@ Fonctions :
 * Templating layout and content.
 * Syntax Color in code block
 * Syntax Color in search result (?highlight=txt)
+* Search with multiple word
 
 Documentation.
 
