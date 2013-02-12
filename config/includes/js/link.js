@@ -1,8 +1,8 @@
 function add_onload_js(my_onload_js){
-    if(window.attachEvent) {
-        window.attachEvent('onload', my_onload_js);
-    } else if(window.addEventListener){
+    if(window.addEventListener){
         window.addEventListener("focus", my_onload_js, false);
+    } else if(window.attachEvent) {
+        window.attachEvent('onload', my_onload_js);
     } else {
         if(window.onload) {
             var prev_onload = window.onload;
