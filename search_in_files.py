@@ -31,8 +31,8 @@ import re
 from magic import open as magic_open
 from magic import MAGIC_MIME
 
-magic_mime = magic_open(MAGIC_MIME)
-magic_mime.load()
+MagicMime = magic_open(MAGIC_MIME)
+MagicMime.load()
 
 
 def recursion(expression, folder, files):
@@ -46,7 +46,7 @@ def recursion(expression, folder, files):
                 if os.path.isdir(node_path):
                     results.extend(recursion(expression, node_path, files))
                 else:
-                    ctype = magic_mime.file(node_path)
+                    ctype = MagicMime.file(node_path)
                     if ctype.find('text/') != -1:
                         file_node = open(node_path)
                         data_node = file_node.read()
@@ -73,7 +73,7 @@ def search_in_text_files(expression, folder='.',
                             results.extend(recursion(expression,
                                                      node_path, files))
                     else:
-                        ctype = magic_mime.file(node_path)
+                        ctype = MagicMime.file(node_path)
                         if ctype.find('text/') != -1:
                             file_node = open(node_path)
                             data_node = file_node.read()
