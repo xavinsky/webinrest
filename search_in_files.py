@@ -34,12 +34,13 @@ from magic import MAGIC_MIME
 magic_mime = magic_open(MAGIC_MIME)
 magic_mime.load()
 
+
 def recursion(expression, folder, files):
     results = []
     list_nodes = os.listdir(folder)
     for node_name in list_nodes:
         if node_name not in ['..', '.', '.git'] and \
-               node_name[-1] != '~':
+                node_name[-1] != '~':
             if re.search(files, node_name):
                 node_path = os.path.join(folder, node_name)
                 if os.path.isdir(node_path):
@@ -50,7 +51,9 @@ def recursion(expression, folder, files):
                         file_node = open(node_path)
                         data_node = file_node.read()
                         file_node.close()
-                        if re.search(expression, data_node, flags = re.IGNORECASE):
+                        if re.search(
+                                expression, data_node,
+                                flags=re.IGNORECASE):
                             results.append(node_path)
     return results
 
@@ -62,7 +65,7 @@ def search_in_text_files(expression, folder='.',
         list_nodes = os.listdir(folder)
         for node_name in list_nodes:
             if node_name not in ['..', '.', '.git'] and \
-                   node_name[-1] != '~':
+                    node_name[-1] != '~':
                 if re.search(files, node_name):
                     node_path = os.path.join(folder, node_name)
                     if os.path.isdir(node_path):
@@ -75,6 +78,8 @@ def search_in_text_files(expression, folder='.',
                             file_node = open(node_path)
                             data_node = file_node.read()
                             file_node.close()
-                            if re.search(expression, data_node, flags = re.IGNORECASE):
+                            if re.search(
+                                    expression, data_node,
+                                    flags=re.IGNORECASE):
                                 results.append(node_path)
     return results
